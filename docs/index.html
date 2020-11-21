@@ -1,12 +1,92 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.6/dayjs.min.js"></script>
+        <script src=" https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.6/plugin/duration.min.js"></script>
+        <script src=" https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.6/plugin/relativeTime.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>dayjs.extend(window.dayjs_plugin_duration)</script>
+        <script>dayjs.extend(window.dayjs_plugin_relativeTime)</script>
+
+        <title>My Heart</title>
+
+    </head>
+
 <body onload="initAnimation()">
-    <div id="heart"></div>
-    <div id="beatText"></div>
+    <div class="container">
+        <br>
+        <center>
+            <h1>My Heart</h1>
+        </center>
+        <div class="row">
+            <div class="col-md-6 col-sm-12 box">
+                <div id="time">
+                    <pre></pre>
+                </div>
+                <div id="heart"></div>
+                <div id="beatText" style="display:flex;flex-direction:column-reverse"></div>
+            </div>
+            <hr>
+            <div class="col-md-6 col-sm-12 box">
+                <div class="row">
+                    <div class="col-md-12 col-sm-6">
+                        <span class="title">Today</span>
+                    </div>
+                    <div class="col-md-12 col-sm-6">
+                        min. <span class="number" id="today_min">40 </span>
+                        max. <span class="number" id="today_max">80 </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-6">
+                        <span class="title">Month</span>
+                    </div>
+                    <div class="col-md-12 col-sm-6">
+                        min. <span class="number" id="month_min">40 </span>
+                        max. <span class="number" id="month_max">80 </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-6">
+                        <span class="title">All Time</span>
+                    </div>
+                    <div class="col-md-12 col-sm-6">
+                        min. <span class="number" id="alltime_min">40 </span>
+                        max. <span class="number" id="alltime_max">80 </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 box" style="height:450px;margin-top:50px">
+                <div id="tester"></div>
+            </div>
+            <a href="#">Dataset</a>
+            <div style="margin: 30px;"> </div>
+        </div>
+
+    </div>
+
     <script>
         var heart = document.getElementById("heart")
         var beatText = document.getElementById("beatText")
+        var time = document.getElementById("time")
+        var chart = document.getElementById('tester');
+
+        var alltime_min = document.getElementById("alltime_min");
+        var alltime_max = document.getElementById("alltime_max");
+        var today_min = document.getElementById("today_min");
+        var today_max = document.getElementById("today_max");
+        var month_min = document.getElementById("month_min");
+        var month_max = document.getElementById("month_max");
 
         function initAnimation() {
             fetch("https://ozan-hm.herokuapp.com/data")
@@ -15,9 +95,48 @@
                     if (d) {
                         heartRate = parseInt(d[0].heartRate)
 
-                        beatText.innerHTML = "<span stlye='20px'>"+heartRate+"</span> <br><br><br>" + d[0].date
+                        beatText.innerHTML = heartRate + " bpm"
+                        time.innerHTML = dayjs(d[0].date).add(-3, "hour").fromNow()
                         duration = 1 / (heartRate / 60)
                         heart.style.animation = "hearhbeat " + duration + "s infinite"
+
+                        Plotly.newPlot(chart, [{
+                            x: d.map(x => x.date),
+                            y: d.map(x => x.heartRate),
+                            yMax: 100,
+                            line: { shape: 'linear' },
+                            type: 'scatter',
+
+                        }], {
+                            paper_bgcolor: '#f8f8ff',
+                            plot_bgcolor: '#f8f8ff',
+                            xaxis: {
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            yaxis: {
+                                max: 300,
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            padding: { b: 10, l: 10, r: 10 }
+                        });
+                    }
+                })
+
+            fetch("https://ozan-hm.herokuapp.com/stats")
+                .then(d => d.json())
+                .then(d => {
+                    if (d) {
+                        console.log(d)
+                        month_max.innerHTML = d.month.max
+                        month_min.innerHTML = d.month.min
+
+                        today_max.innerHTML = d.day.max
+                        today_min.innerHTML = d.day.min
+
+                        alltime_max.innerHTML = d.all.max
+                        alltime_min.innerHTML = d.all.min
                     }
                 })
 
@@ -25,28 +144,58 @@
         }
 
     </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
 
     <style>
-        /* HEAR SHAPE BY 
-http://www.aliencoders.com/content/how-make-heart-shape-using-css */
+        .row {
+            width: 100%
+        }
+
+        body {
+            background: #f8f8ff;
+        }
+
+        .title {
+            font-size: 40px
+        }
+
+        .number {
+            font-size: 30px
+        }
+
+        .box {
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 300px;
+            justify-content: space-between;
+        }
+
+        html,
+        body,
+        header {
+            height: 100%;
+        }
+
+
         #beatText {
             text-align: center;
             font-size: 30px;
-            position: absolute;
-            top: calc(50% + 120px);
-            left: calc(50% - 117px);
-            /* width: 100px; */
-            /* height: 90px; */
-            margin: -50px -45px;
         }
 
         #heart {
-            position: absolute;
-            top: 40%;
-            left: 50%;
             width: 100px;
             height: 90px;
-            margin: -50px -45px;
             -webkit-transition: all 0.2s ease;
         }
 
