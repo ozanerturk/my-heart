@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<body onload="initAnimation()">
+    <div id="heart"></div>
+    <div id="beatText"></div>
+    <script>
+        var heart = document.getElementById("heart")
+        var beatText = document.getElementById("beatText")
+
+        function initAnimation() {
+            fetch("https://ozan-hm.herokuapp.com/data")
+                .then(d => d.json())
+                .then(d => {
+                    if (d) {
+                        heartRate = parseInt(d[0].heartRate)
+
+                        beatText.innerHTML = "<span stlye='20px'>"+heartRate+"</span> <br><br><br>" + d[0].date
+                        duration = 1 / (heartRate / 60)
+                        heart.style.animation = "hearhbeat " + duration + "s infinite"
+                    }
+                })
+
+            setTimeout(() => initAnimation(), 5000);
+        }
+
+    </script>
+
+    <style>
+        /* HEAR SHAPE BY 
+http://www.aliencoders.com/content/how-make-heart-shape-using-css */
+        #beatText {
+            text-align: center;
+            font-size: 30px;
+            position: absolute;
+            top: calc(50% + 120px);
+            left: calc(50% - 117px);
+            /* width: 100px; */
+            /* height: 90px; */
+            margin: -50px -45px;
+        }
+
+        #heart {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 100px;
+            height: 90px;
+            margin: -50px -45px;
+            -webkit-transition: all 0.2s ease;
+        }
+
+        #heart:before,
+        #heart:after {
+            position: absolute;
+            content: "";
+            left: 50px;
+            top: 0;
+            width: 50px;
+            height: 80px;
+            background: hsl(0, 50%, 50%);
+            border-radius: 50px 50px 0 0;
+            -webkit-transform: rotate(-45deg);
+            -moz-transform: rotate(-45deg);
+            -ms-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+            -webkit-transform-origin: 0 100%;
+            -moz-transform-origin: 0 100%;
+            -ms-transform-origin: 0 100%;
+            -o-transform-origin: 0 100%;
+            transform-origin: 0 100%;
+        }
+
+        #heart:after {
+            left: 0;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            transform: rotate(45deg);
+            -webkit-transform-origin: 100% 100%;
+            -moz-transform-origin: 100% 100%;
+            -ms-transform-origin: 100% 100%;
+            -o-transform-origin: 100% 100%;
+            transform-origin: 100% 100%;
+        }
+
+        /* HEARTBEAT ANIMATION BY Mi1o */
+        @-webkit-keyframes hearhbeat {
+            0% {
+                -webkit-transform: scale(1);
+            }
+
+            40% {
+                -webkit-transform: scale(1.2);
+            }
+
+            100% {
+                -webkit-transform: scale(1);
+            }
+        }
+    </style>
+</body>
+
+
+</html>
