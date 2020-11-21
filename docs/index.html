@@ -39,39 +39,35 @@
             <hr>
             <div class="col-md-6 col-sm-12 box">
                 <div class="row">
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         <span class="title">Today</span>
                     </div>
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         min. <span class="number" id="today_min">40 </span>
                         max. <span class="number" id="today_max">80 </span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         <span class="title">Month</span>
                     </div>
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         min. <span class="number" id="month_min">40 </span>
                         max. <span class="number" id="month_max">80 </span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         <span class="title">All Time</span>
                     </div>
-                    <div class="col-md-12 col-sm-6">
+                    <div class="col-md-6 col-sm-6">
                         min. <span class="number" id="alltime_min">40 </span>
                         max. <span class="number" id="alltime_max">80 </span>
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 col-sm-12 box" style="height:450px;margin-top:50px">
-                <div id="tester"></div>
-            </div>
-            <a href="#">Dataset</a>
-            <div style="margin: 30px;"> </div>
         </div>
+        <div id="chart"></div>
 
     </div>
 
@@ -79,7 +75,7 @@
         var heart = document.getElementById("heart")
         var beatText = document.getElementById("beatText")
         var time = document.getElementById("time")
-        var chart = document.getElementById('tester');
+        var chart = document.getElementById('chart');
 
         var alltime_min = document.getElementById("alltime_min");
         var alltime_max = document.getElementById("alltime_max");
@@ -103,7 +99,6 @@
                         Plotly.newPlot(chart, [{
                             x: d.map(x => x.date),
                             y: d.map(x => x.heartRate),
-                            yMax: 100,
                             line: { shape: 'linear' },
                             type: 'scatter',
 
@@ -115,12 +110,11 @@
                                 showgrid: false,
                             },
                             yaxis: {
-                                max: 300,
                                 showlegend: false,
                                 showgrid: false,
                             },
                             padding: { b: 10, l: 10, r: 10 }
-                        });
+                        }, { responsive: true });
                     }
                 })
 
