@@ -67,7 +67,12 @@
                 </div>
             </div>
         </div>
+        <h2>Raw Data</h2>
         <div id="chart"></div>
+        <h2>Moving Average/Meadian</h2>
+        <div id="moving"></div>
+        <h2>Meadin Diff</h2>
+        <div id="diff"></div>
 
     </div>
 
@@ -76,6 +81,7 @@
         var beatText = document.getElementById("beatText")
         var time = document.getElementById("time")
         var chart = document.getElementById('chart');
+        var diff = document.getElementById('diff');
 
         var alltime_min = document.getElementById("alltime_min");
         var alltime_max = document.getElementById("alltime_max");
@@ -110,24 +116,92 @@
                             movingMedian.push(window[parseInt(window.length / 2)])
                             movingAverage.push(window.reduce((sum, c) => sum += c,) / window.length)
                         }
-
                         Plotly.newPlot(chart, [{
                             x: dates,
                             y: heartRates,
                             name: 'raw'
                         },
-                        {
-                            x: dates,
-                            y: movingAverage,
-                            name: 'moving average'
+                        ], {
+                            paper_bgcolor: '#f8f8ff',
+                            plot_bgcolor: '#f8f8ff',
+                            xaxis: {
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            yaxis: {
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            padding: { b: 10, l: 10, r: 10 }
+                        }, { responsive: true });
 
+                        Plotly.newPlot(moving, [
+                            {
+                                x: dates,
+                                y: movingAverage,
+                                name: 'moving average'
+
+                            },
+                            {
+                                x: dates,
+                                y: movingMedian,
+                                name: 'moving median'
+
+                            },
+                        ], {
+                            paper_bgcolor: '#f8f8ff',
+                            plot_bgcolor: '#f8f8ff',
+                            xaxis: {
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            yaxis: {
+                                showlegend: false,
+                                showgrid: false,
+                            },
+                            annotations: [
+                                {
+
+                                    xref: 'paper',
+                                    x: 0.9,
+                                    xanchor: 'left',
+                                    y: 75,
+                                    yanchor: 'top',
+                                    text: 'Resting Threshold',
+                                    showarrow: true,
+                                    arrowhead: 1,
+                                    ax: 0,
+                                    ay: 40
+                                }
+                            ],
+                            shapes: [
+                                {
+                                    xref: 'paper',
+                                    type: 'line',
+                                    x0: 0,
+                                    y0: 75,
+                                    x1: 1,
+                                    y1: 75,
+                                    line: {
+                                        color: 'red',
+                                        width: 1
+                                    }
+                                }
+                            ],
+                            padding: { b: 10, l: 10, r: 10 }
+                        }, { responsive: true });
+
+
+                        var differ = []
+                        for (var i = 0; i < movingMedian.length - 1; i++) {
+                            differ.push(movingMedian[i + 1] - movingMedian[i])
+                        }
+                        Plotly.newPlot(diff, [{
+                            x: dates,
+                            y: differ,
+                            name: 'dif'
                         },
-                        {
-                            x: dates,
-                            y: movingMedian,
-                            name: 'movingMedian'
-
-                        }], {
+                        ], {
                             paper_bgcolor: '#f8f8ff',
                             plot_bgcolor: '#f8f8ff',
                             xaxis: {
