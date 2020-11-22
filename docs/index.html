@@ -96,11 +96,36 @@
                         duration = 1 / (heartRate / 60)
                         heart.style.animation = "hearhbeat " + duration + "s infinite"
 
+                        var heartRates = d.map(x => x.heartRate)
+                        var dates = d.map(x => x.date)
+                        var windowSize = 10
+                        var defaultValue = 80
+                        var movingData = [...[...new Array(windowSize - 1)].map(x => defaultValue), ...heartRates]
+
+                        let movingMedian = []
+                        let movingAverage = []
+                        for (let i = 0; i < heartRates.length; i++) {
+                            let window = movingData.slice(i, i + windowSize)
+                            window.sort((a, b) => a - b)
+                            movingMedian.push(window[parseInt(window.length / 2)])
+                            movingAverage.push(window.reduce((sum, c) => sum += c,) / window.length)
+                        }
+
                         Plotly.newPlot(chart, [{
-                            x: d.map(x => x.date),
-                            y: d.map(x => x.heartRate),
-                            line: { shape: 'linear' },
-                            type: 'scatter',
+                            x: dates,
+                            y: heartRates,
+                            name: 'raw'
+                        },
+                        {
+                            x: dates,
+                            y: movingAverage,
+                            name: 'moving average'
+
+                        },
+                        {
+                            x: dates,
+                            y: movingMedian,
+                            name: 'movingMedian'
 
                         }], {
                             paper_bgcolor: '#f8f8ff',
