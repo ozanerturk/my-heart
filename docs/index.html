@@ -69,9 +69,9 @@
         </div>
         <h2>Raw Data</h2>
         <div id="chart"></div>
-        <h2>Moving Average/Meadian</h2>
+        <h2>Moving Meadian</h2>
         <div id="moving"></div>
-        <h2>Meadin Diff</h2>
+        <h2>Median Diff</h2>
         <div id="diff"></div>
 
     </div>
@@ -95,11 +95,13 @@
                 .then(d => d.json())
                 .then(d => {
                     if (d) {
-                        heartRate = parseInt(d[0].heartRate)
+                        d = d.reverse()
+                        lastHeartRate = parseInt(d.find(x => x.heartRate != null).heartRate)
+                        lastDate =d.find(x => x.heartRate != null).date
 
-                        beatText.innerHTML = heartRate + " bpm"
-                        time.innerHTML = dayjs(d[0].date).add(-3, "hour").fromNow()
-                        duration = 1 / (heartRate / 60)
+                        beatText.innerHTML = lastHeartRate + " bpm"
+                        time.innerHTML = dayjs(lastDate).add(-3, "hour").fromNow()
+                        duration = 1 / (lastHeartRate / 60)
                         heart.style.animation = "hearhbeat " + duration + "s infinite"
 
                         var heartRates = d.map(x => x.heartRate)
@@ -109,12 +111,10 @@
                         var movingData = [...[...new Array(windowSize - 1)].map(x => defaultValue), ...heartRates]
 
                         let movingMedian = []
-                        let movingAverage = []
                         for (let i = 0; i < heartRates.length; i++) {
                             let window = movingData.slice(i, i + windowSize)
                             window.sort((a, b) => a - b)
                             movingMedian.push(window[parseInt(window.length / 2)])
-                            movingAverage.push(window.reduce((sum, c) => sum += c,) / window.length)
                         }
                         Plotly.newPlot(chart, [{
                             x: dates,
@@ -136,12 +136,6 @@
                         }, { responsive: true });
 
                         Plotly.newPlot(moving, [
-                            {
-                                x: dates,
-                                y: movingAverage,
-                                name: 'moving average'
-
-                            },
                             {
                                 x: dates,
                                 y: movingMedian,
@@ -194,7 +188,11 @@
 
                         var differ = []
                         for (var i = 0; i < movingMedian.length - 1; i++) {
-                            differ.push(movingMedian[i + 1] - movingMedian[i])
+                            if (movingMedian[i + 1] === null || movingMedian[i] == null) {
+                                differ.push(null)
+                            } else {
+                                differ.push(movingMedian[i + 1] - movingMedian[i])
+                            }
                         }
                         Plotly.newPlot(diff, [{
                             x: dates,
@@ -221,7 +219,6 @@
                 .then(d => d.json())
                 .then(d => {
                     if (d) {
-                        console.log(d)
                         month_max.innerHTML = d.month.max
                         month_min.innerHTML = d.month.min
 
